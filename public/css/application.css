@@ -1,0 +1,218 @@
+/*make snake backgrounds 128 128 128*/
+
+body {
+    margin:0;
+    padding:0;
+    color:green;
+    background-color:lightgrey;
+}
+
+.boardslot {
+    border:5px solid #4A4A4A;
+}
+
+.container {
+  margin: 5px auto;
+  width: 960px;
+  border: 8px solid black;
+    border-radius:20px;
+  height:704px;
+
+}
+th {
+  text-align: left;
+}
+
+.canvascontainer {
+    width:650px;
+    height:654px;
+}
+
+.boardcontainer {
+    display:inline;
+    float:left;
+    clear:left;
+    border-bottom:5px solid #000000;
+    border-top:5px solid #000000;
+    border-left:5px solid #000000;
+    margin-bottom:0px;
+    background-color: black;
+}
+
+.controls {
+    float:right;
+    height:694px;
+    width: 295px;
+    color:white;
+    /*border-right: 5px solid black;*/
+    /*border-top: 5px solid black;*/
+    /*border-bottom: 5px solid black;*/
+    border:5px solid black;
+    background-color: black;
+}
+
+.inner_controls {
+    height: 650px;
+}
+
+.outer_controls {
+    width:295px;
+    height: 49px;
+
+}
+
+
+
+.player_setup {
+    border:3px solid #4A4A4A;
+    color:grey;
+    height: 91px;
+    padding:3px;
+    margin-bottom:5px;
+    background-color: black;
+
+}
+
+.bodypart {
+    display: inline-block;
+    width:20px;
+    height:20px;
+    float:right;
+}
+
+.snake {
+    height:20px;
+    width: 200px;
+}
+
+
+.header {
+    float:left;
+    background-color: black;
+}
+
+.footer {
+    width:540px;
+    height:46px;
+    background-color: black;
+
+}
+
+.tab {
+    cursor: pointer;
+}
+
+/*tab stuff*/
+
+.tabrow {
+    text-align: center;
+    width:650px;
+    list-style: none;
+    margin: -6px 0 20px;
+    padding: 0;
+    line-height: 35px;
+    height: 45px;
+    overflow: hidden;
+    font-size: 12px;
+    font-family: arial;
+    position: relative;
+}
+
+.tabrow li {
+
+    border: 1px solid #4A4A4A;
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1f1f1f), color-stop(1, #030303) );
+    background:-moz-linear-gradient( center top, #1f1f1f 5%, #030303 100% );
+    display: inline-block;
+    position:relative;
+    text-shadow:1px 1px 0px #707070;
+    margin: 2px -5px;
+    padding: 0 40px;
+    width:135px;
+    color: #333;
+    font-family:Arial Black;
+    font-size:25px;
+    font-weight:bold;
+    font-style:normal;
+    cursor:pointer;
+    border-top:0px;
+}
+
+.tabrow a {
+    color: #555;
+    text-decoration: none;
+}
+
+.tabrow li.selected {
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1f1f1f), color-stop(1, #030303) );
+    background:-moz-linear-gradient( center top, #1f1f1f 5%, #030303 100% );
+    color:#4d914a;
+    height:40px;
+    z-index: 2;
+}
+
+ /*buttons*/
+
+.submit {
+    width: 300px;
+}
+
+input[type="submit"] {
+    display: block;
+    margin : 0 auto;
+}
+
+
+.button {
+    height:43px;
+    width:131px;
+    -moz-box-shadow:inset 0px 1px 0px 0px #050505;
+    -webkit-box-shadow:inset 0px 1px 0px 0px #050505;
+    box-shadow:inset 0px 1px 0px 0px #050505;
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1f1f1f), color-stop(1, #030303) );
+    background:-moz-linear-gradient( center top, #1f1f1f 5%, #030303 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#1f1f1f', endColorstr='#030303');
+    background-color:#1f1f1f;
+    text-indent:0;
+    border:1px solid #4d4d4d;
+    display:inline-block;
+    color:#4d914a;
+    font-family:Arial Black;
+    font-size:31px;
+    font-weight:bold;
+    font-style:normal;
+    line-height:36px;
+    text-decoration:none;
+    text-align:center;
+    text-shadow:1px 1px 0px #707070;
+}
+.button:hover {
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #030303), color-stop(1, #1f1f1f) );
+    background:-moz-linear-gradient( center top, #030303 5%, #1f1f1f 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#030303', endColorstr='#1f1f1f');
+    background-color:#030303;
+}
+
+.button:active {
+     position:relative;
+     top:1px;
+}
+
+select {
+    background-color:lightgrey;
+    font-size:14px;
+}
+
+.player_food_image {
+    position:relative;
+    right:130px;
+    width:20px;
+    height:20px;
+    float:right;
+}
+
+#unicorn {
+    float:right;
+    position:relative;
+    bottom:38px;
+}

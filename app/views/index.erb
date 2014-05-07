@@ -1,0 +1,27 @@
+<div class="container">
+
+    <div class="boardcontainer">
+      <div class="canvascontainer">
+          <canvas id="board_canvas" class="boardslot" width="640" height="640"></canvas>
+          <canvas id="controls_canvas" class="boardslot" width="640" height="640" hidden></canvas>
+          <canvas id="stats_canvas" class="boardslot" width="640" height="640" hidden></canvas>
+      </div>
+
+      <div class="footer">
+        <ul class="tabrow">
+        <li class="selected"><div id="board" class="tabbutton">GAME</div></li>
+        <li><div id="controls" class="tabbutton">CONTROL</div></li>
+        <li><div id="stats" class="tabbutton" >STATS</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="controls">
+      <%= erb :_snake_menu %>
+    </div>
+
+</div>
+
+
+
+

@@ -1,0 +1,48 @@
+<div id="player_form">
+    <form method="post" name="players" id="players" action="">
+    <div class="inner_controls">
+        <% (0..5).each do |index| %>
+                <div class="player_setup" id="player_setup_<%= index %>">
+
+                <select name="snake_name_<%= index %>" id="player_snake_<%= index %>" class="player_snake">
+                  <option selected disabled>Choose Snake</option>
+                  <% @snakes.each do |snake| %>
+                     <option value="<%= snake.name %>_<%= snake.color %>_<%= snake.food.name %>"><%= snake.name.capitalize %></option>
+                  <% end %>
+                </select>
+
+                <span class="snake">
+                    <img src="" id="tail_<%= index %>" class="bodypart">
+                    <img src="" class="body_<%= index %> bodypart">
+                    <img src="" class="body_<%= index %> bodypart">
+                    <img src="" class="body_<%= index %> bodypart">
+                    <img src="" id="head_<%= index %>" class="bodypart">
+                </span>
+                <div><span id="player_snake_<%= index %>_strength">Strength: </span></div>
+                <div><span id="player_snake_<%= index %>_personality">Personality: </span></div>
+
+                <div class="food">
+                    <select name="snake_food_<%= index %>" id="player_food_<%= index %>" class="player_food">
+                        <option selected disabled>Choose Food</option>
+                        <% @foods.each do |food| %>
+                            <option value="<%= food.name %>"><%= food.name.capitalize %></option>
+                        <% end %>
+                    </select>
+                    <span id="player_food_image_<%= index %>" class="player_food_image"></span>
+                </div>
+                <div>Score: <span id="player_snake_<%= index %>_score"></span></div>
+            </div>
+        <% end %>
+      </div>
+      <div class="outer_controls">
+        <div class="submit">
+            <input type="submit" name="submit" class="button" id="submit_btn" value="PLAY" />
+
+        </div>
+        <div id="unicorn">
+          <img src="/uni.png"/>
+        </div>
+      </div>
+
+    </form>
+</div>
