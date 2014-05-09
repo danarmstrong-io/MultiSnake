@@ -1,6 +1,6 @@
 $(document).ready(function() {
     //Board stuff
-
+    // if player 1 not active powerup goes to wrong place
     // fix egg gfx
     // check many scenarios
     // fix nagini pictures
@@ -17,6 +17,7 @@ $(document).ready(function() {
     var players = [];
     var fireballs = [];
     var eggs = [];
+    var portals = [];
     var winner;
     var titleScreenNo = 1;
     var started = false;
@@ -29,7 +30,7 @@ $(document).ready(function() {
                              {x:23,   y:1, direction:"left"}, // nagini
                              {x:0,  y:30,  direction:"right"}, // unicorn
                              {x:23,  y:31, direction:"left"}, // chuck
-                             {x: 0, y:15,  direction:"right"}, // hyda
+                             {x: 0, y:15,  direction:"right"}, //sss hyda
                              {x: 23, y:16, direction:"left"}, // kaa
                              {x: 16,  y:0, direction:"down"}, // toothpick
                              {x: 15, y:25, direction:"up"} // benj
@@ -234,10 +235,33 @@ $(document).ready(function() {
         return typesOfPowerUps[Math.floor(Math.random() * typesOfPowerUps.length)];
     }
 
+    function Portal(x, y, direction) {
+        this.blue = {x: x, y: y};
+        this.orange = {};
+        this.direction = direction;
+        if (direction == "up")
+        {
+            this.orange = {x: x, y: y+33}
+        }
+        if (direction == "down")
+        {
+            this.orange = {x: x, y: y-33}
+        }
+        if (direction == "right")
+        {
+            this.orange = {x: x-33, y: y}
+        }
+        if (this == "left")
+        {
+            this.orange = {x: x+33, y: y}
+        }
+        console.log(this);
+    }
+
     //Player
     function Snake(name, foodType, color, id, gameId, length) {
 
-
+        this.powerUp = {name: ""}
         this.old = false;
         this.startingPosition = startingPositions.shift();
         this.name = name;
@@ -289,13 +313,12 @@ $(document).ready(function() {
     }
 
     Snake.prototype.usePowerUp = function() {
-        if(this.powerUp.name != "egg")
+        if(this.powerUp.name != "egg" || this.powerUp.name != "portal")
         {
             this.powerUp.use(this);
             this.powerUp = {};
             $('#player_powerup_image_' + this.id).css('background-image', '');
         }
-
     }
 
     PowerUp.prototype.use = function(snake) {
@@ -501,12 +524,12 @@ $(document).ready(function() {
         else if(this.direction == "left") this.head.x--;
         else if(this.direction == "up") this.head.y--;
         else if(this.direction == "down") this.head.y++;
-
-        if (this.hasCollision())
+        hasCollision = this.hasCollision()
+        if (hasCollision == true)
         {
             this.kill();
         }
-        else
+        else if (hasCollision == false)
         {
             this.checkForFood();
             this.checkForPowerUp();
@@ -527,7 +550,42 @@ $(document).ready(function() {
 
             this.body.unshift({x:this.head.x, y:this.head.y, direction:this.direction});
         }
+        else
+        { // has index of portal that was run into
+            console.log("shouldnt")
+            var colorCollidedWith = portals[hasCollision].findColor(this.head);
+            this.body.unshift(portals[hasCollision].adjustHead(this.head, colorCollidedWith));
+        }
     };
+
+    Portal.prototype.adjustHead = function(head, color) { // returns new head
+        var newHead = head;
+        if ((this.direction == "up" && color == "blue") || (this.direction == "down" && color == "orange"))
+        {
+            newHead.y -= 32;
+        }
+        if ((this.direction == "down" && color == "blue") || (this.direction == "up" && color == "orange"))
+        {
+            newHead.y += 32;
+        }
+        if ((this.direction == "right" && color == "blue") || (this.direction == "left" && color == "orange"))
+        {
+            newHead.x -= 32;
+        }
+        if ((this.direction == "left" && color == "blue") || (this.direction == "right" && color == "orange"))
+        {
+            newHead.x += 32;
+        }
+        return newHead;
+    }
+
+    Portal.prototype.findColor = function(snakeHead) {
+        if (snakeHead.x == this.blue.x && snakeHead.y == this.blue.y )
+            return "blue";
+        else
+            return "orange";
+        console.log("color find fail");
+    }
 
     // Food
     Snake.prototype.checkForFood = function() {
@@ -547,7 +605,6 @@ $(document).ready(function() {
             if (this.head.x == powerUps[index].location.x && this.head.y == powerUps[index].location.y)
             {
                 this.powerUp = powerUps[index];
-                console.log(this.powerUp.name)
                 powerUps.splice(index, 1);
                 var path = '/powerups/' + this.powerUp.name + '.png';
                 $('#player_powerup_image_' + this.id).css('background-image', 'url(' + path + ')');
@@ -591,32 +648,47 @@ $(document).ready(function() {
     // Collision
     Snake.prototype.kill = function() {
         this.alive = false;
-        console.log(this.id);
         $('#player_powerup_image_' + this.id).css('background-image', '')
         if (this.powerUp.name == "egg")
         {
             this.powerUp.name = "";
-            console.log("pushing egg")
             eggs.push(new Egg(this.name, this.body[this.body.length-1].x, this.body[this.body.length-1].y, this.body[this.body.length-1].direction));
         }
     };
 
     Snake.prototype.hasCollision = function() {
-        if(checkBorderCollision(this.head.x, this.head.y) || this.checkSnakeCollision())
+        if(this.checkBorderCollision() || this.checkSnakeCollision())
         {
+            portal = this.findPortal();
+            if(portal)
+                return portal;
             return true;
         }
         return false;
     };
 
-    function checkBorderCollision(x, y)
-    {
-        if (x == -1 || x == width/cellWidth || y == -1 || y == height/cellWidth)
+    Snake.prototype.findPortal = function() {
+        var index;
+        for(index = 0; index < portals.length; index++)
         {
+            if((portals[index].blue.x == this.head.x && portals[index].blue.y == this.head.y) || (portals[index].orange.x == this.head.x && portals[index].orange.y == this.head.y))
+                return index;
+        }
+    };
+
+    Snake.prototype.checkBorderCollision = function() {
+        if (this.head.x == -1 || this.head.x == width/cellWidth || this.head.y == -1 || this.head.y == height/cellWidth)
+        {
+            if (this.powerUp.name == "portal")
+            {
+                var portal = new Portal(this.head.x, this.head.y, this.direction);
+                portals.push(portal);
+                return false;
+            }
             return true;
         }
         return false;
-    }
+    };
 
     Snake.prototype.checkSnakeCollision = function() {
         for(var playerIndex = 0; playerIndex < players.length; playerIndex++)
@@ -683,7 +755,6 @@ $(document).ready(function() {
 
     function paintBite(head)
     {
-        console.log("paint bite");
         biteImage = new Image();
         biteImage.src = '/body-bg.gif';
         var pattern = context.createPattern(biteImage, "repeat");
@@ -872,8 +943,32 @@ $(document).ready(function() {
         });
     }
 
+    function paintPortals()
+    {
+        portals.forEach(function(portal) {
+            var path = '/portal/blue.png';
+            var bluePortal = new Image();
+            bluePortal.src = path;
+            path = '/portal/orange.png';
+            var orangePortal = new Image();
+            orangePortal.src = path;
+            var bluePattern = context.createPattern(bluePortal, "repeat");
+            var orangePattern = context.createPattern(orangePortal, "repeat");
+
+            if (portal.direction == "up")
+            {
+                context.fillStyle = bluePattern;
+                context.fillRect((portal.blue.x)*cellWidth, (portal.blue.y+1)*cellWidth, cellWidth, cellWidth);
+                context.fillStyle = orangePattern;
+                context.fillRect((portal.orange.x)*cellWidth, (portal.orange.y-1)*cellWidth, cellWidth, cellWidth);
+
+            }
+        })
+    }
+
     function round()
     {
+
         if (countdown < 4)
         {
             if (winner)
@@ -895,6 +990,7 @@ $(document).ready(function() {
                 }
 
                 paintBoard();
+                paintPortals();
                 paintEggs();
                 paintSnakes();
                 if (powerUps.length > 0)
@@ -918,9 +1014,9 @@ $(document).ready(function() {
                 });
                 if (checkForWin())
                 {
-
                     winner = findWinner();
-                    winner.win();
+                    if (winner != "tie")
+                        winner.win();
                 }
                 powerUpTimer -= 1;
 
