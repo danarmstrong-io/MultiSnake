@@ -11,7 +11,7 @@
                   <% end %>
                 </select>
 
-                <span class="snake">
+                <span class="snake" id="snake_<%= index %>">
                     <img src="" id="tail_<%= index %>" class="bodypart">
                     <img src="" class="body_<%= index %> bodypart">
                     <img src="" class="body_<%= index %> bodypart">
@@ -29,8 +29,9 @@
                         <% end %>
                     </select>
                     <span id="player_food_image_<%= index %>" class="player_food_image"></span>
+                    <span id="player_powerup_image_<%= index %>" class="player_powerup_image"></span>
                 </div>
-                <div>Score: <span id="player_snake_<%= index %>_score"></span></div>
+                <div>Score: <span id="player_snake_<%= index %>_score"></span><span class="remove_player" id="remove_player_<%= index %>">X</span></div>
             </div>
         <% end %>
       </div>

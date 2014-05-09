@@ -9,6 +9,8 @@ body {
 
 .boardslot {
     border:5px solid #4A4A4A;
+    width:640px;
+    height:640px;
 }
 
 .container {
@@ -83,6 +85,17 @@ th {
 .snake {
     height:20px;
     width: 200px;
+}
+
+.remove_player {
+    padding: 2px;
+    cursor:pointer;
+    position:relative;
+    float:right;
+    border:2px solid grey;
+    border-radius:3px;
+    bottom:12px;
+    height:17px;
 }
 
 
@@ -206,6 +219,15 @@ select {
 .player_food_image {
     position:relative;
     right:130px;
+    width:20px;
+    height:20px;
+    float:right;
+}
+
+.player_powerup_image {
+    position:relative;
+    background-image: url('/powerups/rainbowborder.png');
+    right:60px;
     width:20px;
     height:20px;
     float:right;

@@ -1,6 +1,7 @@
 get '/' do
   # Look in app/views/index.erb
   @snakes = Snake.all
+  @snakes.delete_if {|snake| snake.name == "nagini"}
   @foods = Food.all
   erb :index
 end
