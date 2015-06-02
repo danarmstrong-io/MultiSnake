@@ -7,6 +7,12 @@ $(document).ready(function() {
     // lose points when cut in pieces check?
     // work on player display
 
+    var gameSpeed = 120;
+    var powerUpTimer = 40;
+    var decayTime = 300;
+    var eggTimer = 20;
+    var typesOfPowerUps = ["portal", "fireball", "bite", "egg"];
+
     var board = document.getElementById("board_canvas");
     var context = board.getContext("2d");
     var width = $("#board_canvas").width();
@@ -14,18 +20,17 @@ $(document).ready(function() {
     var cellWidth = 20;
     var countdown = 0;
     var finished = false;
+
+    // arrays holding types of objects
     var players = [];
     var fireballs = [];
     var eggs = [];
     var portals = [];
+    var powerUps = [];
     var winner;
     var titleScreenNo = 1;
     var started = false;
-    var powerUpTimer = 40;
-    var powerUps = [];
-    var decayTime = 300;
-    var eggTimer = 20;
-    var typesOfPowerUps = ["fireball", "egg", "bite"];
+
     var startingPositions = [{x:0,   y:0,  direction:"right"}, // mara
                              {x:23,   y:1, direction:"left"}, // nagini
                              {x:0,  y:30,  direction:"right"}, // unicorn
@@ -35,7 +40,6 @@ $(document).ready(function() {
                              {x: 16,  y:0, direction:"down"}, // toothpick
                              {x: 15, y:25, direction:"up"} // benj
     ];
-    var favoriteFoods = ["harry", "chicken", "bear", "coconut", "worm", "tardis", "crustacean", "rainbow"];
 
     function Egg(name, x, y, direction) {
         this.name = name;
@@ -67,22 +71,10 @@ $(document).ready(function() {
         console.log("egg created " + this.name + " " + this.position)
     }
 
-    function paintEggs() {
-        eggs.forEach( function(egg) {
-            var imageObj = new Image();
-            imageObj.src = '/snakes/egg.png'
-            var pattern = context.createPattern(imageObj, 'repeat');
-            paintCell({x: egg.x, y: egg.y}, pattern);
-        });
-    }
-//    (name, foodType, color, id, gameId, length)
     Egg.prototype.hatch = function() {
         var snakeIndex = players.map(function(snake) {
             return snake.name;
         }).indexOf(this.name);
-        console.log("This snakes index is " + snakeIndex);
-        console.log("hatch");
-//        console.log(snakeIndex);
         var oldSnake = new Snake(players[snakeIndex].name, players[snakeIndex].foodType, players[snakeIndex].color, players[snakeIndex].id, players[snakeIndex].gameId, players[snakeIndex].body.length)
         oldSnake.body = players[snakeIndex].body;
         oldSnake.alive = false;
@@ -162,8 +154,6 @@ $(document).ready(function() {
     }
 
     Fireball.prototype.paint = function() {
-
-
         var path = '/fireball/' + this.direction + '.png';
         var imageObj = new Image();
         imageObj.src = path;
@@ -181,7 +171,6 @@ $(document).ready(function() {
     }
 
     Fireball.prototype.checkForCollision = function() {
-
         for(var playersIndex = 0; playersIndex < players.length; playersIndex++)
         {
             for(var bodyIndex = 0; bodyIndex < players[playersIndex].body.length; bodyIndex++)
@@ -192,14 +181,7 @@ $(document).ready(function() {
                 }
 
             }
-
         }
-//        players.forEach (function(player) {
-//            player.body.forEach (function(part) {
-//                if ((part.x == this.body[0].x && part.y == this.body[0].y) || (part.x == this.body[1].x && part.y == this.body[1].y) )
-//                    player.loseTail(part);
-//            })
-//        })
     }
 
     Fireball.prototype.moveOne = function() {
@@ -251,11 +233,10 @@ $(document).ready(function() {
         {
             this.orange = {x: x-33, y: y}
         }
-        if (this == "left")
+        if (direction == "left")
         {
             this.orange = {x: x+33, y: y}
         }
-        console.log(this);
     }
 
     //Player
@@ -326,15 +307,14 @@ $(document).ready(function() {
             this.fireball(snake);
         if (this.name == "bite")
             this.bite(snake);
-        if (this.name == "portal")
-            this.portal(snake);
     }
 
     Snake.prototype.loseTail = function(part) {
+        this.score -= 3
+        $('#player_snake_' + this.id + '_score').html(this.score);
         var index = this.body.indexOf(part);
         index += 1;
         this.body.splice(index, this.body.length - index);
-        this.score -= ((this.body.length - index) / 3)
     }
 
     PowerUp.prototype.fireball = function(user) {
@@ -390,8 +370,6 @@ $(document).ready(function() {
     };
 
     // Snake Image helpers
-
-
 
     Snake.prototype.findBodyPartImage = function(index) {
         var path = '/snakes/' + this.name + '/' + this.getDirection(index) + '/' + this.getBodyPart(index) + '.png';
@@ -525,11 +503,23 @@ $(document).ready(function() {
         else if(this.direction == "up") this.head.y--;
         else if(this.direction == "down") this.head.y++;
         hasCollision = this.hasCollision()
-        if (hasCollision == true)
+        if (hasCollision === true)
         {
-            this.kill();
+            portalIndex = this.findPortal();
+            if (portalIndex != undefined)
+            {
+                this.hitPortal(portalIndex);
+            }
+            else if (this.powerUp.name == "portal" && !this.checkSnakeCollision())
+            {
+                this.usePortal();
+            }
+            else
+            {
+                this.kill();
+            }
         }
-        else if (hasCollision == false)
+        else if (hasCollision === false)
         {
             this.checkForFood();
             this.checkForPowerUp();
@@ -550,33 +540,26 @@ $(document).ready(function() {
 
             this.body.unshift({x:this.head.x, y:this.head.y, direction:this.direction});
         }
-        else
-        { // has index of portal that was run into
-            console.log("shouldnt")
-            var colorCollidedWith = portals[hasCollision].findColor(this.head);
-            this.body.unshift(portals[hasCollision].adjustHead(this.head, colorCollidedWith));
-        }
     };
 
-    Portal.prototype.adjustHead = function(head, color) { // returns new head
-        var newHead = head;
-        if ((this.direction == "up" && color == "blue") || (this.direction == "down" && color == "orange"))
+    Snake.prototype.adjustHeadFromPortal = function() {
+
+        if (this.direction == "up")
         {
-            newHead.y -= 32;
+            this.head.y += 33;
         }
-        if ((this.direction == "down" && color == "blue") || (this.direction == "up" && color == "orange"))
+        if (this.direction == "down")
         {
-            newHead.y += 32;
+            this.head.y -= 33;
         }
-        if ((this.direction == "right" && color == "blue") || (this.direction == "left" && color == "orange"))
+        if (this.direction == "right")
         {
-            newHead.x -= 32;
+            this.head.x -= 33;
         }
-        if ((this.direction == "left" && color == "blue") || (this.direction == "right" && color == "orange"))
+        if (this.direction == "left")
         {
-            newHead.x += 32;
+            this.head.x += 33;
         }
-        return newHead;
     }
 
     Portal.prototype.findColor = function(snakeHead) {
@@ -659,9 +642,6 @@ $(document).ready(function() {
     Snake.prototype.hasCollision = function() {
         if(this.checkBorderCollision() || this.checkSnakeCollision())
         {
-            portal = this.findPortal();
-            if(portal)
-                return portal;
             return true;
         }
         return false;
@@ -676,15 +656,38 @@ $(document).ready(function() {
         }
     };
 
+    Snake.prototype.hitPortal = function(portalIndex) {
+        this.adjustHeadFromPortal();
+        this.checkForFood();
+        this.checkForPowerUp();
+        if (this.toShrink > 0)
+        {
+            this.body.pop();
+            this.toShrink = false;
+            this.toShrink -= 1;
+        }
+        if (this.toGrow == 0)
+        {
+            this.body.pop();
+        }
+        else
+        {
+            this.toGrow -= 1;
+        }
+        this.body.unshift({x:this.head.x, y:this.head.y, direction:this.direction});
+    }
+
+    Snake.prototype.usePortal = function() {
+        $('#player_powerup_image_' + this.id).css('background-image', '');
+        this.powerUp.name = "";
+        var portal = new Portal(this.head.x, this.head.y, this.direction);
+        portals.push(portal);
+        this.hitPortal(portals.length - 1);
+    }
+
     Snake.prototype.checkBorderCollision = function() {
         if (this.head.x == -1 || this.head.x == width/cellWidth || this.head.y == -1 || this.head.y == height/cellWidth)
         {
-            if (this.powerUp.name == "portal")
-            {
-                var portal = new Portal(this.head.x, this.head.y, this.direction);
-                portals.push(portal);
-                return false;
-            }
             return true;
         }
         return false;
@@ -727,9 +730,6 @@ $(document).ready(function() {
             paintSnake(winner);
             context.fillStyle = winner.color;
         }
-
-
-
         context.font="62px arial";
         context.fillText(output,200,320);
     }
@@ -837,9 +837,17 @@ $(document).ready(function() {
 
     }
 
+    function paintEggs() {
+        eggs.forEach( function(egg) {
+            var imageObj = new Image();
+            imageObj.src = '/snakes/egg.png'
+            var pattern = context.createPattern(imageObj, 'repeat');
+            paintCell({x: egg.x, y: egg.y}, pattern);
+        });
+    }
+
     function init(players)
     {
-
         finished = false;
         winner = null;
         if (players)
@@ -857,7 +865,7 @@ $(document).ready(function() {
                 player.createFood();
             });
             if(typeof game_loop != "undefined") clearInterval(game_loop);
-            game_loop = setInterval(round, 120);
+            game_loop = setInterval(round, gameSpeed);
         }
         else
         {
@@ -946,10 +954,10 @@ $(document).ready(function() {
     function paintPortals()
     {
         portals.forEach(function(portal) {
-            var path = '/portal/blue.png';
+            var path = '/portal/blue-' + portal.direction + '.png';
             var bluePortal = new Image();
             bluePortal.src = path;
-            path = '/portal/orange.png';
+            path = '/portal/orange-' + portal.direction + '.png';
             var orangePortal = new Image();
             orangePortal.src = path;
             var bluePattern = context.createPattern(bluePortal, "repeat");
@@ -961,14 +969,34 @@ $(document).ready(function() {
                 context.fillRect((portal.blue.x)*cellWidth, (portal.blue.y+1)*cellWidth, cellWidth, cellWidth);
                 context.fillStyle = orangePattern;
                 context.fillRect((portal.orange.x)*cellWidth, (portal.orange.y-1)*cellWidth, cellWidth, cellWidth);
-
             }
+            if (portal.direction == "down")
+            {
+                context.fillStyle = bluePattern;
+                context.fillRect((portal.blue.x)*cellWidth, (portal.blue.y-1)*cellWidth, cellWidth, cellWidth);
+                context.fillStyle = orangePattern;
+                context.fillRect((portal.orange.x)*cellWidth, (portal.orange.y+1)*cellWidth, cellWidth, cellWidth);
+            }
+            if (portal.direction == "right")
+            {
+                context.fillStyle = bluePattern;
+                context.fillRect((portal.blue.x-1)*cellWidth, (portal.blue.y)*cellWidth, cellWidth, cellWidth);
+                context.fillStyle = orangePattern;
+                context.fillRect((portal.orange.x+1)*cellWidth, (portal.orange.y)*cellWidth, cellWidth, cellWidth);
+            }
+            if (portal.direction == "left")
+            {
+                context.fillStyle = bluePattern;
+                context.fillRect((portal.blue.x+1)*cellWidth, (portal.blue.y)*cellWidth, cellWidth, cellWidth);
+                context.fillStyle = orangePattern;
+                context.fillRect((portal.orange.x-1)*cellWidth, (portal.orange.y)*cellWidth, cellWidth, cellWidth);
+            }
+
         })
     }
 
     function round()
     {
-
         if (countdown < 4)
         {
             if (winner)
@@ -1092,6 +1120,7 @@ $(document).ready(function() {
                 players = [];
                 eggs = [];
                 powerUps = [];
+                portals = [];
                 startingPositions = [{x:0,   y:0,  direction:"right"}, // mara
                     {x:23,   y:1, direction:"left"}, // nagini
                     {x:0,  y:30,  direction:"right"}, // unicorn
@@ -1155,40 +1184,40 @@ $(document).ready(function() {
 
     $(document).keydown(function(e){
         var key = e.which;
-        if(key == "37" && players[1].direction != "right") players[1].direction = "left";
-        else if(key == "38" && players[1].direction != "down") players[1].direction = "up";
-        else if(key == "39" && players[1].direction != "left") players[1].direction = "right";
-        else if(key == "40" && players[1].direction != "up") players[1].direction = "down";
+        if(key == "37" && players[1].body[0].direction != "right") players[1].direction = "left";
+        else if(key == "38" && players[1].body[0].direction != "down") players[1].direction = "up";
+        else if(key == "39" && players[1].body[0].direction != "left") players[1].direction = "right";
+        else if(key == "40" && players[1].body[0].direction != "up") players[1].direction = "down";
         else if(key == "16") players[1].usePowerUp();
 
-        else if(key == "65" && players[0].direction != "right") players[0].direction = "left";
-        else if(key == "87" && players[0].direction != "down") players[0].direction = "up";
-        else if(key == "68" && players[0].direction != "left") players[0].direction = "right";
-        else if(key == "83" && players[0].direction != "up") players[0].direction = "down";
+        else if(key == "65" && players[0].body[0].direction != "right") players[0].direction = "left";
+        else if(key == "87" && players[0].body[0].direction != "down") players[0].direction = "up";
+        else if(key == "68" && players[0].body[0].direction != "left") players[0].direction = "right";
+        else if(key == "83" && players[0].body[0].direction != "up") players[0].direction = "down";
         else if(key == "69") players[0].usePowerUp();
 
-        else if(key == "56" && players[2].direction != "down") players[2].direction = "up"; // 8
-        else if(key == "85" && players[2].direction != "right") players[2].direction = "left";
-        else if(key == "73" && players[2].direction != "up") players[2].direction = "down";
-        else if(key == "79" && players[2].direction != "left") players[2].direction = "right";
+        else if(key == "56" && players[2].body[0].direction != "down") players[2].direction = "up"; // 8
+        else if(key == "85" && players[2].body[0].direction != "right") players[2].direction = "left";
+        else if(key == "73" && players[2].body[0].direction != "up") players[2].direction = "down";
+        else if(key == "79" && players[2].body[0].direction != "left") players[2].direction = "right";
         else if(key == "57") players[2].usePowerUp();
 
-        else if(key == "53" && players[3].direction != "down") players[3].direction = "up";
-        else if(key == "82" && players[3].direction != "right") players[3].direction = "left";
-        else if(key == "84" && players[3].direction != "up") players[3].direction = "down";
-        else if(key == "89" && players[3].direction != "left") players[3].direction = "right";
+        else if(key == "53" && players[3].body[0].direction != "down") players[3].direction = "up";
+        else if(key == "82" && players[3].body[0].direction != "right") players[3].direction = "left";
+        else if(key == "84" && players[3].body[0].direction != "up") players[3].direction = "down";
+        else if(key == "89" && players[3].body[0].direction != "left") players[3].direction = "right";
         else if(key == "16") players[3].usePowerUp();
 
-        else if(key == "71" && players[4].direction != "down") players[4].direction = "up";
-        else if(key == "86" && players[4].direction != "right") players[4].direction = "left";
-        else if(key == "66" && players[4].direction != "up") players[4].direction = "down";
-        else if(key == "78" && players[4].direction != "left") players[4].direction = "right";
+        else if(key == "71" && players[4].body[0].direction != "down") players[4].direction = "up";
+        else if(key == "86" && players[4].body[0].direction != "right") players[4].direction = "left";
+        else if(key == "66" && players[4].body[0].direction != "up") players[4].direction = "down";
+        else if(key == "78" && players[4].body[0].direction != "left") players[4].direction = "right";
         else if(key == "16") players[4].usePowerUp();
 
-        else if(key == "75" && players[5].direction != "down") players[5].direction = "up";
-        else if(key == "77" && players[5].direction != "right") players[5].direction = "left";
-        else if(key == "188" && players[5].direction != "up") players[5].direction = "down";
-        else if(key == "190" && players[5].direction != "left") players[5].direction = "right";
+        else if(key == "75" && players[5].body[0].direction != "down") players[5].direction = "up";
+        else if(key == "77" && players[5].body[0].direction != "right") players[5].direction = "left";
+        else if(key == "188" && players[5].body[0].direction != "up") players[5].direction = "down";
+        else if(key == "190" && players[5].body[0].direction != "left") players[5].direction = "right";
         else if(key == "16") players[5].usePowerUp();
 
     });
