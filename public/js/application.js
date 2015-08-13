@@ -68,7 +68,6 @@ $(document).ready(function() {
             this.x += 1;
             this.direction = "right";
         }
-        console.log("egg created " + this.name + " " + this.position)
     }
 
     Egg.prototype.hatch = function() {
@@ -567,7 +566,6 @@ $(document).ready(function() {
             return "blue";
         else
             return "orange";
-        console.log("color find fail");
     }
 
     // Food
