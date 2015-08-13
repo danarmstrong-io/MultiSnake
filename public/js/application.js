@@ -1184,41 +1184,53 @@ $(document).ready(function() {
 
     $(document).keydown(function(e){
         var key = e.which;
-        if(key == "37" && players[1].body[0].direction != "right") players[1].direction = "left";
-        else if(key == "38" && players[1].body[0].direction != "down") players[1].direction = "up";
-        else if(key == "39" && players[1].body[0].direction != "left") players[1].direction = "right";
-        else if(key == "40" && players[1].body[0].direction != "up") players[1].direction = "down";
-        else if(key == "16") players[1].usePowerUp();
+        if (players[0]) {
+          if(key == "37" && players[0].body[0].direction != "right") players[0].direction = "left";
+          else if(key == "38" && players[0].body[0].direction != "down") players[0].direction = "up";
+          else if(key == "39" && players[0].body[0].direction != "left") players[0].direction = "right";
+          else if(key == "40" && players[0].body[0].direction != "up") players[0].direction = "down";
+          else if(key == "16") players[0].usePowerUp();
+        }
 
-        else if(key == "65" && players[0].body[0].direction != "right") players[0].direction = "left";
-        else if(key == "87" && players[0].body[0].direction != "down") players[0].direction = "up";
-        else if(key == "68" && players[0].body[0].direction != "left") players[0].direction = "right";
-        else if(key == "83" && players[0].body[0].direction != "up") players[0].direction = "down";
-        else if(key == "69") players[0].usePowerUp();
+        if (players[1]) {
+          if(key == "65" && players[1].body[0].direction != "right") players[1].direction = "left";
+          else if(key == "87" && players[1].body[0].direction != "down") players[1].direction = "up";
+          else if(key == "68" && players[1].body[0].direction != "left") players[1].direction = "right";
+          else if(key == "83" && players[1].body[0].direction != "up") players[1].direction = "down";
+          else if(key == "69") players[1].usePowerUp();
+        }
 
-        else if(key == "56" && players[2].body[0].direction != "down") players[2].direction = "up"; // 8
-        else if(key == "85" && players[2].body[0].direction != "right") players[2].direction = "left";
-        else if(key == "73" && players[2].body[0].direction != "up") players[2].direction = "down";
-        else if(key == "79" && players[2].body[0].direction != "left") players[2].direction = "right";
-        else if(key == "57") players[2].usePowerUp();
+        if (players[2]) {
+          if(key == "56" && players[2].body[0].direction != "down") players[2].direction = "up"; // 8
+          else if(key == "85" && players[2].body[0].direction != "right") players[2].direction = "left";
+          else if(key == "73" && players[2].body[0].direction != "up") players[2].direction = "down";
+          else if(key == "79" && players[2].body[0].direction != "left") players[2].direction = "right";
+          else if(key == "57") players[2].usePowerUp();
+        }
 
-        else if(key == "53" && players[3].body[0].direction != "down") players[3].direction = "up";
-        else if(key == "82" && players[3].body[0].direction != "right") players[3].direction = "left";
-        else if(key == "84" && players[3].body[0].direction != "up") players[3].direction = "down";
-        else if(key == "89" && players[3].body[0].direction != "left") players[3].direction = "right";
-        else if(key == "16") players[3].usePowerUp();
+        if (players[3]) {
+          if(key == "53" && players[3].body[0].direction != "down") players[3].direction = "up";
+          else if(key == "82" && players[3].body[0].direction != "right") players[3].direction = "left";
+          else if(key == "84" && players[3].body[0].direction != "up") players[3].direction = "down";
+          else if(key == "89" && players[3].body[0].direction != "left") players[3].direction = "right";
+          else if(key == "16") players[3].usePowerUp();
+        }
 
-        else if(key == "71" && players[4].body[0].direction != "down") players[4].direction = "up";
-        else if(key == "86" && players[4].body[0].direction != "right") players[4].direction = "left";
-        else if(key == "66" && players[4].body[0].direction != "up") players[4].direction = "down";
-        else if(key == "78" && players[4].body[0].direction != "left") players[4].direction = "right";
-        else if(key == "16") players[4].usePowerUp();
+        if (players[4]) {
+          if(key == "71" && players[4].body[0].direction != "down") players[4].direction = "up";
+          else if(key == "86" && players[4].body[0].direction != "right") players[4].direction = "left";
+          else if(key == "66" && players[4].body[0].direction != "up") players[4].direction = "down";
+          else if(key == "78" && players[4].body[0].direction != "left") players[4].direction = "right";
+          else if(key == "16") players[4].usePowerUp();
+        }
 
-        else if(key == "75" && players[5].body[0].direction != "down") players[5].direction = "up";
-        else if(key == "77" && players[5].body[0].direction != "right") players[5].direction = "left";
-        else if(key == "188" && players[5].body[0].direction != "up") players[5].direction = "down";
-        else if(key == "190" && players[5].body[0].direction != "left") players[5].direction = "right";
-        else if(key == "16") players[5].usePowerUp();
+        if (players[5]) {
+          if(key == "75" && players[5].body[0].direction != "down") players[5].direction = "up";
+          else if(key == "77" && players[5].body[0].direction != "right") players[5].direction = "left";
+          else if(key == "188" && players[5].body[0].direction != "up") players[5].direction = "down";
+          else if(key == "190" && players[5].body[0].direction != "left") players[5].direction = "right";
+          else if(key == "16") players[5].usePowerUp();
+        }
 
     });
 
